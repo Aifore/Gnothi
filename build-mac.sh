@@ -5,6 +5,22 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
+# 检查完整 Xcode 是否可用（只装了 Command Line Tools 不够）
+if ! xcodebuild -version >/dev/null 2>&1; then
+  echo "✗ 没有找到可用的 Xcode。"
+  if [ -d "/Applications/Xcode.app" ]; then
+    echo "  已安装 Xcode，但系统当前指向 Command Line Tools。请执行："
+    echo "    sudo xcode-select -s /Applications/Xcode.app/Contents/Developer"
+    echo "    sudo xcodebuild -license accept"
+  else
+    echo "  请先在 Mac App Store 安装 Xcode（免费），打开一次完成组件安装，然后执行："
+    echo "    sudo xcode-select -s /Applications/Xcode.app/Contents/Developer"
+  fi
+  echo "  完成后重新运行：bash build-mac.sh"
+  exit 1
+fi
+echo "▶︎ 使用 $(xcodebuild -version | head -1)"
+
 echo "▶︎ 正在编译 Gnothi（macOS）…"
 xcodebuild \
   -project Gnothi.xcodeproj \
